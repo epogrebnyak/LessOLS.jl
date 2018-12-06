@@ -1,0 +1,7 @@
+language: julia
+
+# os:
+# - windows
+
+julia:
+  - 1.0
