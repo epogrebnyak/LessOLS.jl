@@ -1,0 +1,6 @@
+authors = ["epogrebnyak <e.pogrebnyak@gmail.com>"]
+name = "LessOLS"
+uuid = "3e4c6e70-f926-11e8-0fa5-39915c5a2b72"
+version = "0.1.0"
+
+[deps]
