@@ -1,1 +1,1 @@
-@assert true
+include("sample.jl")
