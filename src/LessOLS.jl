@@ -5,8 +5,8 @@ export Sample
 Sample(X,Y)
 
 Sample holds X array of size n*k (known as explanatory variables, 
-independent variables, or features) and Y n*1 sized vector (response or 
-dependent variable) for observed data.    
+independent variables, or features) and Y n*1 sized vector 
+(response, dependent variable or regressor) for observed data.    
 """
 struct Sample
     X::Array 
