@@ -2,7 +2,7 @@ using Test
 using Distributions
 import LessOLS: Process, make_sample, ols
 
-#include("sample.jl")
+include("sample.jl")
 
 uniform(a, b, k) = n -> rand(Uniform(a, b), n, k)
 linear(;β_0, β) = X -> β_0 .+ X * β

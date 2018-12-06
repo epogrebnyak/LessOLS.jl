@@ -1,7 +1,7 @@
 module LessOLS
 
-using Distributions
-using Statistics
+using Distributions: Normal, Uniform
+using Statistics: mean
 
 """
 Sample(X,Y)
@@ -32,14 +32,14 @@ function add_intercept(sample::Sample)
 end  
 
 # Create a function that will return a sample of normal observations
-function dgp_normal(;β_0, β, sd_e)
-    y_process(X) = β_0 .+ X * β
-    dist_e = Normal(0, sd_e)
-    k = size(β, 1)
-    noise_process(X) = rand(dist_e, size(X, 1), 1)
-    # vec reshapes Array{T, 2} to Vector
-    return X -> vec(y_process(X) + noise_process(X))
-end
+# function dgp_normal(;β_0, β, sd_e)
+#     y_process(X) = β_0 .+ X * β
+#     dist_e = Normal(0, sd_e)
+#     k = size(β, 1)
+#     noise_process(X) = rand(dist_e, size(X, 1), 1)
+#     # vec reshapes Array{T, 2} to Vector
+#     return X -> vec(y_process(X) + noise_process(X))
+# end
 
 struct Process
     x # of n, k 

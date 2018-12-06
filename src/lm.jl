@@ -1,4 +1,4 @@
-export ols, yhat, r2, show
+#export ols, yhat, r2, show
 
 struct LinearModel
     observed::Sample
