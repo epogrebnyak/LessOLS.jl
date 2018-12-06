@@ -1,4 +1,5 @@
 module LessOLS
+export Sample
 
 """
 Sample(X,Y)
