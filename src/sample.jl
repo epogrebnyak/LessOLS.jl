@@ -39,7 +39,7 @@ function make_sample(p::Process, n::Int)::Sample
         return Sample(X, Y)
 end  
 
-# Normal assumptions case
+# normal assumptions case
 uniform(a, b, k) = n -> rand(Uniform(a, b), n, k)
 linear(β_0, β) = X -> β_0 .+ X * β
 normal_noise(sd_e) = X -> rand(Normal(0, sd_e), size(X, 1), 1)
