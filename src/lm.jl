@@ -26,7 +26,8 @@ end
 
 function repr(lm::LinearModel)::String
     quack = lm.has_intercept ? "" : "no"
-    return ("Linear model with $quack intercept and coefficients $(lm.beta)")    
+    return ("Linear model with $quack intercept and coefficients $(lm.beta)\n" *
+            "R-squared $(r2(lm))")
 end    
 
 show(lm::LinearModel) = println(repr(lm))
