@@ -10,6 +10,7 @@ using LessOLS: uniform, linear, normal_noise
     @test all(lm.beta - [1.25, 6.3] .< 0.1)
     @test isa(yhat(lm), Vector)
     @test r2(lm)>0
+    @test occursin("Linear model", desc(lm))
 end
 
 @testset "sampler_normal and ols by approx coefficients" begin
@@ -20,4 +21,5 @@ end
     @test all(map(abs, cd) .< 0.1)
     @test isa(yhat(lm), Vector)
     @test r2(lm)>0
+    @test occursin("Linear model", desc(lm))
 end

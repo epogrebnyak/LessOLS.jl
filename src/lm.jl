@@ -24,13 +24,15 @@ function yhat(lm::LinearModel)
     return f(lm.observed.X) * lm.beta 
 end    
 
-function repr(lm::LinearModel)::String
-    quack = lm.has_intercept ? "" : "no"
-    return ("Linear model with $quack intercept and coefficients $(lm.beta)\n" *
-            "R-squared $(r2(lm))")
+function desc(lm::LinearModel)::String
+    quack_ = lm.has_intercept ? " " : " no "
+    r2_ = round(r2(lm), digits=4)
+    return ("Linear model with$(quack_)intercept\n" *
+            "Coefficients: $(lm.beta)\n" *
+            "R-squared: $(r2_)")
 end    
 
-show(lm::LinearModel) = println(repr(lm))
+show(lm::LinearModel) = println(desc(lm))
 
 sum_of_squares(x::Vector)::Real = sum(x .^ 2) 
 
