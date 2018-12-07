@@ -21,7 +21,7 @@ struct Sample
     end    
 end
 
-function add_intercept(X::Array)
+function add_intercept(X::Array)::Array
     nrows = size(X, 1)
     X0 = ones(nrows, 1)
     return [X0 X]
@@ -31,24 +31,14 @@ function add_intercept(sample::Sample)
     return Sample(add_intercept(sample.X), sample.Y)
 end  
 
-# Create a function that will return a sample of normal observations
-# function dgp_normal(;β_0, β, sd_e)
-#     y_process(X) = β_0 .+ X * β
-#     dist_e = Normal(0, sd_e)
-#     k = size(β, 1)
-#     noise_process(X) = rand(dist_e, size(X, 1), 1)
-#     # vec reshapes Array{T, 2} to Vector
-#     return X -> vec(y_process(X) + noise_process(X))
-# end
-
 struct Process
-    x # of n, k 
-    y # of x
-    e # of x
+    x # function of sample size n 
+    y # function of regressors X
+    e # function of regressors X
     Process(;x,y,e) = new(x, y, e)
 end
 
-function make_sample(p::Process, n::Int)
+function make_sample(p::Process, n::Int)::Sample
         X = p.x(n)
         Y = vec(p.y(X) + p.e(X))
         return Sample(X, Y)
