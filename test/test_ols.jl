@@ -13,7 +13,7 @@ using LessOLS: uniform, linear, normal_noise
 end
 
 @testset "sampler_normal and ols by approx coefficients" begin
-    gen = sampler_normal(a=0, b=20, β_0=5, β=[1, 2.5], sd_e=0.5)
+    gen = sampler_normal(a=0, b=50, β_0=5, β=[1, 2.5], sd_e=0.1)
     sam = gen(100)
     lm = ols(sam, intercept=true)
     cd = lm.beta - [5, 1, 2.5]
