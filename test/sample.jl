@@ -25,4 +25,4 @@ end
     @test_broken make_sample(p, 3) == Sample([1, 2, 3], [2.01, 4.01, 6.01]) # equality not defined
     @test make_sample(p, 3).X == [1, 2, 3]
     @test make_sample(p, 3).Y == [2.01, 4.01, 6.01]
-end    
+end

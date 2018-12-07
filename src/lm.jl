@@ -1,5 +1,3 @@
-#export ols, yhat, r2, show
-
 struct LinearModel
     observed::Sample
     has_intercept::Bool
