@@ -20,7 +20,7 @@ end
 
 """Return fitted dependent variable Y."""
 function yhat(lm::LinearModel)
-    f = lm.intercept ? add_intercept : identity
+    f = lm.has_intercept ? add_intercept : identity
     return f(lm.observed.X) * lm.beta 
 end    
 

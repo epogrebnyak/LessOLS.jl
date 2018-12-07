@@ -1,5 +1,5 @@
+__precompile__(false)
 module LessOLS
-
 using Distributions: Normal, Uniform
 using Statistics: mean
 
@@ -43,6 +43,20 @@ function make_sample(p::Process, n::Int)::Sample
         Y = vec(p.y(X) + p.e(X))
         return Sample(X, Y)
 end  
+
+# Normal assumptions case
+uniform(a, b, k) = n -> rand(Uniform(a, b), n, k)
+linear(β_0, β) = X -> β_0 .+ X * β
+normal_noise(sd_e) = X -> rand(Normal(0, sd_e), size(X, 1), 1)
+
+function sampler_normal(;a, b, β_0, β, sd_e)
+    k = length(β)
+    p = Process(x = uniform(a, b, k),
+                y = linear(β_0, β),
+                e = normal_noise(sd_e)) 
+    return n -> make_sample(p, n)            
+end    
+
 
 include("lm.jl")
 
