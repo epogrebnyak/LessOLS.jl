@@ -22,7 +22,8 @@ end
     p = Process(x = n->collect(1:n),
                 y = x->2*x,
                 e = x->[0.01 for _ in x])    
-    @test_broken make_sample(p, 3) == Sample([1, 2, 3], [2.01, 4.01, 6.01]) # equality not defined
+    # FIXME: equality not defined for Sample           
+    # @test_broken make_sample(p, 3) == Sample([1, 2, 3], [2.01, 4.01, 6.01]) 
     @test make_sample(p, 3).X == [1, 2, 3]
     @test make_sample(p, 3).Y == [2.01, 4.01, 6.01]
 end
