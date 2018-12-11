@@ -3,15 +3,17 @@
 # LessOLS.jl
 Build your own econometrics package
 
+
 ## Our approach
 
 Simulation is a good way to study estimator properties. In real life 
 we rarely know the true data generating process and have to search for 
-better model and parameter estimation procedure. In `LessOLS.jl` we catalogue 
-several types of data generting processes, which depart from ideal conditions, 
-and show how applying different models and estimators leads to different 
-quality of parameters estimated. Quality of parameters is related to decision costs 
-based on model predictions. 
+better model and parameter estimation procedure. 
+
+In `LessOLS.jl` we catalogue several types of data generting processes and show how applying different models and estimators leads to different quality of parameters estimated. 
+Quality of parameters is related to decision costs based on model predictions. 
+
+[![][assets/beyond_point_estimate.png]](https://twitter.com/PogrebnyakE/status/1071526723773194245)
 
 ## Steps
 
