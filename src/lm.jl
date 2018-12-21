@@ -4,6 +4,10 @@ struct LinearModel
     beta::Vector #of Real
 end    
 
+function has_intercept(lm::LinearModel)
+  return all(lm.observed[:,1] .== 1.0) 
+end  
+
 # OLS estimation using (\)
 # https://github.com/giob1994/Alistair.jl/blob/3a11c19150169695581b46e4d1895f0641a4c29d/src/linregress.jl#L38-L41
 function ols(X::Array, Y::Array)::Array
@@ -27,7 +31,7 @@ function equation(lm::LinearModel, precision::Int)
     return equation(lm.beta, lm.intercept, precision)  
 end    
 
-function equation(beta::Vector, intercept::Bool, precision::Int)
+function equation(beta::Vector, intercept::Bool, precision::Int=4)
     beta = map(x -> round(x, digits=precision), beta)
     result = "Y = "
     if intercept
@@ -42,8 +46,9 @@ end
 
 function desc(lm::LinearModel)::String
     quack_ = lm.intercept ? " " : " no "
-    r2_ = round(r2(lm), digits=4)
-    eq_ = equation(lm, 4)
+    precision = 4
+    r2_ = round(r2(lm), digits=precision)
+    eq_ = equation(lm, precision)
     join_(args...) = join(args,"\n")
     return join_("Linear model with$(quack_)intercept: $eq_",                 
                  "Coefficients: $(lm.beta)",
