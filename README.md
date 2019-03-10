@@ -13,7 +13,7 @@ better model and parameter estimation procedure.
 In `LessOLS.jl` we catalogue several types of data generting processes and show how applying different models and estimators leads to different quality of parameters estimated. 
 Quality of parameters is related to decision costs based on model predictions. 
 
-![](assets/beyond_point_estimate.png]
+![](assets/beyond_point_estimate.png)
 
 ## Steps
 
