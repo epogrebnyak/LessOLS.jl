@@ -1,0 +1,282 @@
+
+Typesetting math: 0%
+Jupyter Notebook
+LessOLS.jl playbox Last Checkpoint: 37 минут назад Autosave Failed! Current Kernel Logo
+
+Julia 1.0.3
+
+    File
+    Edit
+    View
+    Insert
+    Cell
+    Kernel
+    Widgets
+    Help
+
+https://juliabyexample.helpmanual.io/
+
+using Distributions: Normal, Uniform
+
+using Statistics: mean
+
+dim_error(message:: String) = throw(DimensionMismatch(message)) 
+
+​
+
+struct Sample
+
+    """Sample(X,Y)
+
+​
+
+    Sample holds:
+
+        X, array of size n*k (explanatory variables, independent variables, features or regressor) 
+
+        Y, n*1 sized vector, for observed data (response, dependent variable or regressand)    
+
+    """
+
+    X::Array 
+
+    Y::Vector
+
+    function Sample(X, Y)        
+
+        size(X,1) == size(Y,1) || dim_error("X and Y must have same number of rows")
+
+        size(Y,2) == 1 || dim_error("Y must be a vector: $Y")   
+
+        new(X, Y)
+
+    end    
+
+end
+
+​
+
+function add_intercept(X::Array)::Array
+
+    nrows = size(X, 1)
+
+    X0 = ones(nrows, 1)
+
+    return [X0 X]
+
+end    
+
+​
+
+function add_intercept(sample::Sample)
+
+    return Sample(add_intercept(sample.X), sample.Y)
+
+end  
+
+struct Process
+
+    x # function of sample size n 
+
+    y # function of regressors X
+
+    e # function of regressors X
+
+    Process(;x,y,e) = new(x, y, e)
+
+end
+
+​
+
+function make_sample(p::Process, n::Int)::Sample
+
+        X = p.x(n)
+
+        Y = vec(p.y(X) + p.e(X))
+
+        return Sample(X, Y)
+
+end  
+
+​
+
+# normal assumptions case
+
+uniform(a, b, k) = n -> rand(Uniform(a, b), n, k)
+
+linear(β_0, β) = X -> β_0 .+ X * β
+
+normal_noise(sd_e) = X -> rand(Normal(0, sd_e), size(X, 1), 1)
+
+​
+
+function sampler_normal(;a, b, β_0, β, sd_e)
+
+    k = length(β)
+
+    p = Process(x = uniform(a, b, k),
+
+                y = linear(β_0, β),
+
+                e = normal_noise(sd_e)) 
+
+    return n -> make_sample(p, n)            
+
+end    
+
+struct LinearModel
+
+    observed::Sample
+
+    intercept::Bool
+
+    beta::Vector #of Real
+
+end    
+
+​
+
+function has_intercept(lm::LinearModel)
+
+  return all(lm.observed[:,1] .== 1.0) 
+
+end  
+
+​
+
+# OLS estimation using (\)
+
+# https://github.com/giob1994/Alistair.jl/blob/3a11c19150169695581b46e4d1895f0641a4c29d/src/linregress.jl#L38-L41
+
+function ols(X::Array, Y::Array)::Array
+
+    return (X' * X) \ (X' * Y)
+
+end 
+
+​
+
+"""Fit ordinary linear regression for observations."""
+
+function ols(sample::Sample; intercept::Bool=false)::LinearModel
+
+    f = intercept ? add_intercept : identity
+
+    beta_hat = ols(f(sample.X), sample.Y)
+
+    return LinearModel(sample, intercept, beta_hat)
+
+end
+
+​
+
+"""Return fitted dependent variable Y."""
+
+function yhat(lm::LinearModel)
+
+    f = lm.intercept ? add_intercept : identity
+
+    return f(lm.observed.X) * lm.beta 
+
+end    
+
+​
+
+function equation(lm::LinearModel, precision::Int)  
+
+    return equation(lm.beta, lm.intercept, precision)  
+
+end    
+
+​
+
+function equation(beta::Vector, intercept::Bool, precision::Int=4)
+
+    beta = map(x -> round(x, digits=precision), beta)
+
+    result = "Y = "
+
+    if intercept
+
+        result *= "$(beta[1])"
+
+        beta = beta[2:end]
+
+    end
+
+    for (i,b) in enumerate(beta)
+
+        result *= (b >= 0 ? " + $b" : " - $(abs(b))") * "*X$i"
+
+    end    
+
+    return result
+
+end    
+
+​
+
+function desc(lm::LinearModel)::String
+
+    quack_ = lm.intercept ? " " : " no "
+
+    precision = 4
+
+    r2_ = round(r2(lm), digits=precision)
+
+    eq_ = equation(lm, precision)
+
+    join_(args...) = join(args,"\n")
+
+    return join_("Linear model with$(quack_)intercept: $eq_",                 
+
+                 "Coefficients: $(lm.beta)",
+
+                 "R-squared: $(r2_)")
+
+end    
+
+​
+
+show(lm::LinearModel) = println(desc(lm))
+
+​
+
+sum_of_squares(x::Vector)::Real = sum(x .^ 2) 
+
+​
+
+"""Residual sum of squares."""
+
+rss(lm::LinearModel) = sum_of_squares(yhat(lm) - lm.observed.Y)
+
+​
+
+"""Total sum of squares for Y - mean.
+
+   Also equals var(Y)*n.
+
+"""
+
+tss(lm::LinearModel) = sum_of_squares(lm.observed.Y .- mean(lm.observed.Y)) # 
+
+​
+
+"""R2 (unadjusted) = 1-(RSS/TSS)""" 
+
+r2(lm::LinearModel) = 1 - rss(lm)/tss(lm)
+
+gen = sampler_normal(a=0, b=20, β_0=5, β=[1, 2.5], sd_e=0.5)
+
+sam = gen(100)
+
+lm = ols(sam, intercept=true)
+
+show(lm)
+
+​
+
+@assert equation([-1/3, -2/7, 1/29],true,4) == "Y = -0.3333 - 0.2857*X1 + 0.0345*X2"
+
+​
+
