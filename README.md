@@ -1,7 +1,10 @@
 [![Build Status](https://travis-ci.org/epogrebnyak/LessOLS.jl.svg?branch=master)](https://travis-ci.org/epogrebnyak/LessOLS.jl)
 
+Notebook at: https://juliabox.com/notebook/notebooks/LessOLS.jl%20playbox.ipynb#
+
 # LessOLS.jl
-Build your own econometrics package
+
+Building a simplistic econometrics package.
 
 
 ## Our approach
