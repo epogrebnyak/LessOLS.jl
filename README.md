@@ -1,6 +1,7 @@
 [![Build Status](https://travis-ci.org/epogrebnyak/LessOLS.jl.svg?branch=master)](https://travis-ci.org/epogrebnyak/LessOLS.jl)
+[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/epogrebnyak/LessOLS.jl/master)
 
-Notebook at: https://juliabox.com/notebook/notebooks/LessOLS.jl%20playbox.ipynb#
+Also a trial notebook at: https://juliabox.com/notebook/notebooks/LessOLS.jl%20playbox.ipynb#
 
 # LessOLS.jl
 
