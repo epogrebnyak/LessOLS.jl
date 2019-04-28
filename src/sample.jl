@@ -1,17 +1,19 @@
 """
 Sample(X,Y)
 
-Sample holds X array of size n*k (known as explanatory variables, 
-independent variables, or features) and Y n*1 sized vector 
-(response, dependent variable or regressor) for observed data.    
+Sample holds X array of size n*k (explanatory variables, 
+independent variables, features or regressor) and Y, a n*1 sized 
+vector, for observed data (response, dependent variable or regressand).    
 """
+
+dim_error(message:: String) = throw(DimensionMismatch(message)) 
+
 struct Sample
     X::Array 
     Y::Vector
-    function Sample(X, Y)
-        td(message:: String) = throw(DimensionMismatch(message)) 
-        size(X,1) == size(Y,1) || td("X and Y must have same number of rows")
-        size(Y,2) == 1 || td("Y must be a vector: $Y")   
+    function Sample(X, Y)        
+        size(X,1) == size(Y,1) || dim_error("X and Y must have same number of rows")
+        size(Y,2) == 1 || dim_error("Y must be a vector: $Y")   
         new(X, Y)
     end    
 end
