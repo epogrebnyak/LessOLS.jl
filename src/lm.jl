@@ -1,12 +1,8 @@
 struct LinearModel
     observed::Sample
-    intercept::Bool
-    beta::Vector #of Real
+    modify_x # must change observed.X
+    beta::Vector #FIMXE: of Real
 end    
-
-function has_intercept(lm::LinearModel)
-  return all(lm.observed[:,1] .== 1.0) 
-end  
 
 # OLS estimation using (\)
 # https://github.com/giob1994/Alistair.jl/blob/3a11c19150169695581b46e4d1895f0641a4c29d/src/linregress.jl#L38-L41
@@ -18,23 +14,27 @@ end
 function ols(sample::Sample; intercept::Bool=false)::LinearModel
     f = intercept ? add_intercept : identity
     beta_hat = ols(f(sample.X), sample.Y)
-    return LinearModel(sample, intercept, beta_hat)
+    return LinearModel(sample, f, beta_hat)
 end
 
 """Return fitted dependent variable Y."""
 function yhat(lm::LinearModel)
-    f = lm.intercept ? add_intercept : identity
-    return f(lm.observed.X) * lm.beta 
+    X_ = lm.modify_x(lm.observed.X)
+    return X_ * lm.beta 
 end    
 
-function equation(lm::LinearModel, precision::Int)  
-    return equation(lm.beta, lm.intercept, precision)  
-end    
+function pretty_round(beta, precision::Int=3)
+    map(x -> round(x, digits=precision), beta)
+end
 
-function equation(beta::Vector, intercept::Bool, precision::Int=4)
-    beta = map(x -> round(x, digits=precision), beta)
+function has_intercept(lm::LinearModel)
+    false # FIXME: lm.x_modifier != identity
+end
+
+function equation(lm::LinearModel):: String
+    beta = pretty_round(lm.beta)
     result = "Y = "
-    if intercept
+    if has_intercept(lm)
         result *= "$(beta[1])"
         beta = beta[2:end]
     end
@@ -44,15 +44,16 @@ function equation(beta::Vector, intercept::Bool, precision::Int=4)
     return result
 end    
 
+by_line(args...) = join(args,"\n")
+
 function desc(lm::LinearModel)::String
-    quack_ = lm.intercept ? " " : " no "
-    precision = 4
-    r2_ = round(r2(lm), digits=precision)
-    eq_ = equation(lm, precision)
-    join_(args...) = join(args,"\n")
-    return join_("Linear model with$(quack_)intercept: $eq_",                 
-                 "Coefficients: $(lm.beta)",
-                 "R-squared: $(r2_)")
+    quack_ = has_intercept(lm) ? " " : " no "
+    r2_ = pretty_round(r2(lm))
+    eq_ = equation(lm)
+    return by_line("Linear model with$(quack_)intercept: $eq_",                 
+                   "Coefficients: $(lm.beta)",
+                   "Sorry I do not know p-values yet.",
+                   "R-squared: $(r2_)")
 end    
 
 show(lm::LinearModel) = println(desc(lm))
