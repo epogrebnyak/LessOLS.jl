@@ -5,3 +5,8 @@ language: julia
 
 julia:
   - 1.0
+
+# https://github.com/JuliaLang/Example.jl/blob/master/.travis.yml
+#script: # the default script is equivalent to the following
+#  - if [[ -a .git/shallow ]]; then git fetch --unshallow; fi
+#  - julia -e 'Pkg.clone(pwd()); Pkg.build("Example"); Pkg.test("Example"; coverage=true)';

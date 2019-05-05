@@ -1,3 +1,5 @@
+using Distributions: Normal, Uniform
+
 is_vector(x) = size(x,2) == 1
 nrows(x) = size(x,1)
 dim_error(message:: String) = throw(DimensionMismatch(message)) 
@@ -29,10 +31,11 @@ function add_intercept(sample::Sample)
 end
 
 function sample_factory(;x_process, y_process, error_process)
-    function sampler(n: Int):
+    function sampler(n:: Int)
         X = x_process(n)
         Y = vec(y_process(X) + error_process(X))
         return Sample(X, Y)
+    end
 end
 
 function normal_sampler(;a, b, β_0, β, sd_e)
@@ -43,3 +46,4 @@ function normal_sampler(;a, b, β_0, β, sd_e)
                    y_process = X -> β_0 .+ X * β, 
                    error_process = X -> rand(dn, nrows(X), 1)
                    )
+end                    

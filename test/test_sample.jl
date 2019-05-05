@@ -18,6 +18,7 @@ end
     @test add_intercept(sam).Y == sam.Y
 end
 
+#FIXME: change this
 @testset "data generating process" begin
     p = Process(x = n->collect(1:n),
                 y = x->2*x,
