@@ -1,12 +1,12 @@
 using Test
-import LessOLS: Sample, add_intercept, Process, make_sample
+import LessOLS: Sample, add_intercept, sample_factory#, Process, make_sample
 
-@testset "Sample constructor" begin
+@testset "Sample struct - constructor" begin
     x = [[1,2,3] [4,5,6]]
     y = [1,2,3]
     sam = Sample(x, y)
-    @test sam.X == [[1,2,3] [4,5,6]]
-    @test sam.Y == [1,2,3]
+    @test sam.X == x
+    @test sam.Y == y
     @test_throws DimensionMismatch Sample([1,2], [1,2,3])
     @test_throws DimensionMismatch Sample(y, x)
 end
@@ -18,13 +18,12 @@ end
     @test add_intercept(sam).Y == sam.Y
 end
 
-#FIXME: change this
-@testset "data generating process" begin
-    p = Process(x = n->collect(1:n),
-                y = x->2*x,
-                e = x->[0.01 for _ in x])    
-    # FIXME: equality not defined for Sample           
-    # @test_broken make_sample(p, 3) == Sample([1, 2, 3], [2.01, 4.01, 6.01]) 
-    @test make_sample(p, 3).X == [1, 2, 3]
-    @test make_sample(p, 3).Y == [2.01, 4.01, 6.01]
+@testset "data generating process make_sample()" begin
+    fct = sample_factory(x_process = n->collect(1:n),
+                         y_process = x->2*x,
+                         error_process = x->[0.1 for _ in x]
+                         )    
+    sam = fct(3)
+    @test sam.X == [1, 2, 3]
+    @test sam.Y == [2.1, 4.1, 6.1]
 end

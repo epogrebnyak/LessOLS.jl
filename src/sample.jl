@@ -25,7 +25,7 @@ function add_intercept(X::Array)::Array
     return [X0 X]
 end    
 
-# FIXME: do not add intercept if it is already there.
+# TODO: do not add intercept if it is already there.
 function add_intercept(sample::Sample)
     return Sample(add_intercept(sample.X), sample.Y)
 end
@@ -40,10 +40,10 @@ end
 
 function normal_sampler(;a, b, β_0, β, sd_e)
     k = length(β)
-    du = Uniform(a, b) # this is squares only
+    du = Uniform(a, b) # this is squares for x only
     dn = Normal(0, sd_e)
     sample_factory(x_process = n -> rand(du, n, k),
                    y_process = X -> β_0 .+ X * β, 
                    error_process = X -> rand(dn, nrows(X), 1)
                    )
-end                    
+end

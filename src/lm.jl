@@ -19,6 +19,10 @@ function ols(sample::Sample; intercept::Bool=false)::LinearModel
     return LinearModel(X, sample.Y, beta_hat)
 end
 
+# another interface
+function ols(x, y; intercept::Bool=false)::LinearModel
+    return ols(Sample(x,y), intercept=intercept)    
+end
 
 """Return fitted dependent variable Y."""
 function yhat(lm::LinearModel)
@@ -28,12 +32,12 @@ end
 sum_of_squares(x::Vector)::Real = sum(x .^ 2) 
 
 """Residual sum of squares."""
-rss(lm::LinearModel) = sum_of_squares(yhat(lm) - lm.observed.Y)
+rss(lm::LinearModel) = sum_of_squares(yhat(lm) - lm.Y)
 
 """Total sum of squares for Y - mean.
    Also equals var(Y)*n.
 """
-tss(lm::LinearModel) = sum_of_squares(lm.observed.Y .- mean(lm.observed.Y)) # 
+tss(lm::LinearModel) = sum_of_squares(lm.Y .- mean(lm.Y)) # 
 
 """R2 (unadjusted) = 1-(RSS/TSS)""" 
 r2(lm::LinearModel) = 1 - rss(lm)/tss(lm)
