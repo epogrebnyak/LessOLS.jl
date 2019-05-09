@@ -1,12 +1,10 @@
-struct LinearModel
-    observed::Sample
-    intercept::Bool
-    beta::Vector #of Real
-end    
+using Statistics: mean
 
-function has_intercept(lm::LinearModel)
-  return all(lm.observed[:,1] .== 1.0) 
-end  
+struct LinearModel
+    X::Array 
+    Y::Vector
+    beta::Vector #FIMXE: of Real
+end    
 
 # OLS estimation using (\)
 # https://github.com/giob1994/Alistair.jl/blob/3a11c19150169695581b46e4d1895f0641a4c29d/src/linregress.jl#L38-L41
@@ -16,56 +14,67 @@ end
 
 """Fit ordinary linear regression for observations."""
 function ols(sample::Sample; intercept::Bool=false)::LinearModel
-    f = intercept ? add_intercept : identity
-    beta_hat = ols(f(sample.X), sample.Y)
-    return LinearModel(sample, intercept, beta_hat)
+    X = (intercept ? add_intercept : identity)(sample.X)
+    beta_hat = ols(X, sample.Y)
+    return LinearModel(X, sample.Y, beta_hat)
+end
+
+# another interface
+function ols(x, y; intercept::Bool=false)::LinearModel
+    return ols(Sample(x,y), intercept=intercept)    
 end
 
 """Return fitted dependent variable Y."""
 function yhat(lm::LinearModel)
-    f = lm.intercept ? add_intercept : identity
-    return f(lm.observed.X) * lm.beta 
+    return lm.X * lm.beta 
 end    
-
-function equation(lm::LinearModel, precision::Int)  
-    return equation(lm.beta, lm.intercept, precision)  
-end    
-
-function equation(beta::Vector, intercept::Bool, precision::Int=4)
-    beta = map(x -> round(x, digits=precision), beta)
-    result = "Y = "
-    if intercept
-        result *= "$(beta[1])"
-        beta = beta[2:end]
-    end
-    for (i,b) in enumerate(beta)
-        result *= (b >= 0 ? " + $b" : " - $(abs(b))") * "*X$i"
-    end    
-    return result
-end    
-
-function desc(lm::LinearModel)::String
-    quack_ = lm.intercept ? " " : " no "
-    precision = 4
-    r2_ = round(r2(lm), digits=precision)
-    eq_ = equation(lm, precision)
-    join_(args...) = join(args,"\n")
-    return join_("Linear model with$(quack_)intercept: $eq_",                 
-                 "Coefficients: $(lm.beta)",
-                 "R-squared: $(r2_)")
-end    
-
-show(lm::LinearModel) = println(desc(lm))
 
 sum_of_squares(x::Vector)::Real = sum(x .^ 2) 
 
 """Residual sum of squares."""
-rss(lm::LinearModel) = sum_of_squares(yhat(lm) - lm.observed.Y)
+rss(lm::LinearModel) = sum_of_squares(yhat(lm) - lm.Y)
 
 """Total sum of squares for Y - mean.
    Also equals var(Y)*n.
 """
-tss(lm::LinearModel) = sum_of_squares(lm.observed.Y .- mean(lm.observed.Y)) # 
+tss(lm::LinearModel) = sum_of_squares(lm.Y .- mean(lm.Y)) # 
 
 """R2 (unadjusted) = 1-(RSS/TSS)""" 
 r2(lm::LinearModel) = 1 - rss(lm)/tss(lm)
+
+betas(lm::LinearModel) = lm.beta
+
+# display LinearModel
+function has_intercept(lm::LinearModel)
+    return all(lm.X[:,1] .== 1.0) 
+end 
+
+function equation(lm::LinearModel):: String
+    equation(has_intercept(lm), lm.beta)
+end     
+
+function pretty_round(beta, precision::Int=3)
+    map(x -> round(x, digits=precision), beta)
+end
+
+"""Make string like 3 + 0.5*X1 - 0.1*X2"""
+function equation(has_intercept, betas)
+    fmt = b -> (b >= 0) ? (" + $b") : (" - $(abs(b))") 
+    vars = ["*X$i" for i in 1:length(betas)]
+    if has_intercept
+        vars = pushfirst!(vars[1:end-1], "")
+    end
+    gen = zip(map(fmt, pretty_round(betas)), vars)
+    return "Y =" * join(["$k$x" for (k, x) in gen], "")    
+end
+
+function desc(lm::LinearModel)::String
+    by_line(args...) = join(args, "\n")
+    quack_ = has_intercept(lm) ? " " : " no "
+    return by_line("Linear model with$(quack_)intercept: $(equation(lm))",                 
+                   "Coefficients: $(lm.beta)",
+                   "Sorry I do not know p-values yet.",
+                   "R-squared: $(pretty_round(r2(lm)))")
+end    
+
+show(lm::LinearModel) = println(desc(lm))

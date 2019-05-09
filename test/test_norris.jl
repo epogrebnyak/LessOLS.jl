@@ -1,8 +1,8 @@
 # Observations from https://www.itl.nist.gov/div898/strd/lls/data/LINKS/DATA/Norris.dat
-__precompile__(false)
+#__precompile__(false)
 using CSV
 
-doc = """y,   x
+DOC_NORRIS = """y,   x
 0.1,        0.2
 338.8,      337.4
 118.1,      118.2
@@ -39,15 +39,29 @@ doc = """y,   x
 668.4,      669.1
 449.2,      448.9
   0.2,        0.5"""
-doc = replace(doc," " => "")
-df = CSV.read(IOBuffer(doc))
-reference = (b0=-0.262323073774029, b1=1.00211681802045,r2=0.999993745883712)
+reference = (b0=-0.262323073774029, 
+             b1=1.00211681802045,
+             r2=0.999993745883712)
 
+function doc_to_dataframe()
+  doc = replace(DOC_NORRIS," " => "")
+  return CSV.read(IOBuffer(doc))
+end             
 
-@testset "Norris linear regression with intercept" begin
-   norris = ols(Sample(df.x, df.y), intercept=true)
-   approx(a, b, d)::Bool = (round(a, digits=d) == round(b, digits=d))
-   @test approx(reference.b0, norris.beta[1], 12)
-   @test approx(reference.b1, norris.beta[2], 12)
-   @test approx(reference.r2, r2(norris), 15)
+function approx(a, b, d::Int)::Bool
+  r = x -> round(x, digits=d)
+  return r(a) == r(b)
+end
+
+function get_norris_data()
+  df = doc_to_dataframe()
+  return df.x, df.y
+end
+
+@testset "Norris example - linear regression with intercept" begin
+   x, y = get_norris_data()
+   norris_lm = ols(x, y, intercept=true)
+   @test approx(reference.b0, norris_lm.beta[1], 12)
+   @test approx(reference.b1, norris_lm.beta[2], 12)
+   @test approx(reference.r2, r2(norris_lm), 15)
 end

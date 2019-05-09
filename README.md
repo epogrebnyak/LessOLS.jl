@@ -1,7 +1,10 @@
 [![Build Status](https://travis-ci.org/epogrebnyak/LessOLS.jl.svg?branch=master)](https://travis-ci.org/epogrebnyak/LessOLS.jl)
+[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/epogrebnyak/LessOLS.jl/master)
+
 
 # LessOLS.jl
-Build your own econometrics package
+
+Building a simplistic econometrics package.
 
 
 ## Our approach

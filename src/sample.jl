@@ -1,53 +1,49 @@
-"""
-Sample(X,Y)
+using Distributions: Normal, Uniform
 
-Sample holds X array of size n*k (known as explanatory variables, 
-independent variables, or features) and Y n*1 sized vector 
-(response, dependent variable or regressor) for observed data.    
+is_vector(x) = size(x,2) == 1
+nrows(x) = size(x,1)
+dim_error(message:: String) = throw(DimensionMismatch(message)) 
+
+"""Sample(X,Y)
+
+Sample holds X array of size n*k (explanatory variables, 
+independent variables, features or regressor) and Y, a n*1 sized 
+vector, for observed data (response, dependent variable or regressand).    
 """
 struct Sample
     X::Array 
     Y::Vector
-    function Sample(X, Y)
-        td(message:: String) = throw(DimensionMismatch(message)) 
-        size(X,1) == size(Y,1) || td("X and Y must have same number of rows")
-        size(Y,2) == 1 || td("Y must be a vector: $Y")   
+    function Sample(X, Y)        
+        nrows(X) == nrows(Y) || dim_error("X and Y must have same number of rows")
+        is_vector(Y) || dim_error("Y must be a vector: $Y")   
         new(X, Y)
     end    
 end
 
 function add_intercept(X::Array)::Array
-    nrows = size(X, 1)
-    X0 = ones(nrows, 1)
+    X0 = ones(nrows(X), 1)
     return [X0 X]
 end    
 
+# TODO: do not add intercept if it is already there.
 function add_intercept(sample::Sample)
     return Sample(add_intercept(sample.X), sample.Y)
-end  
-
-struct Process
-    x # function of sample size n 
-    y # function of regressors X
-    e # function of regressors X
-    Process(;x,y,e) = new(x, y, e)
 end
 
-function make_sample(p::Process, n::Int)::Sample
-        X = p.x(n)
-        Y = vec(p.y(X) + p.e(X))
+function sample_factory(;x_process, y_process, error_process)
+    function sampler(n:: Int)
+        X = x_process(n)
+        Y = vec(y_process(X) + error_process(X))
         return Sample(X, Y)
-end  
+    end
+end
 
-# normal assumptions case
-uniform(a, b, k) = n -> rand(Uniform(a, b), n, k)
-linear(β_0, β) = X -> β_0 .+ X * β
-normal_noise(sd_e) = X -> rand(Normal(0, sd_e), size(X, 1), 1)
-
-function sampler_normal(;a, b, β_0, β, sd_e)
+function normal_sampler(;a, b, β_0, β, sd_e)
     k = length(β)
-    p = Process(x = uniform(a, b, k),
-                y = linear(β_0, β),
-                e = normal_noise(sd_e)) 
-    return n -> make_sample(p, n)            
-end    
+    du = Uniform(a, b) # this is squares for x only
+    dn = Normal(0, sd_e)
+    sample_factory(x_process = n -> rand(du, n, k),
+                   y_process = X -> β_0 .+ X * β, 
+                   error_process = X -> rand(dn, nrows(X), 1)
+                   )
+end
