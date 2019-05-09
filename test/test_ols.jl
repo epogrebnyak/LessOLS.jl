@@ -1,4 +1,4 @@
-import LessOLS: normal_sampler, ols, show, betas, equation
+import LessOLS: normal_sampler, ols, show, desc, yhat, r2, equation
 
 function almost_equals(a, b, threshold)
     diff = map(abs, (a-b))
