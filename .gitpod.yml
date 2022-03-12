@@ -4,4 +4,4 @@ tasks:
   - command: julia --version
 vscode:
   extensions:
-    - julialang.language-julia@0.12.3:lgRyBd8rjwUpMGG0C5GAig==
+    - julialang.language-julia
